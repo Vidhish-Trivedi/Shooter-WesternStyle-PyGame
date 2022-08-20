@@ -2,7 +2,7 @@ import pygame as pg
 from os import walk
 
 class Player(pg.sprite.Sprite):
-    def __init__(self, position, groups, asset_path, coll_sprites):
+    def __init__(self, position, groups, asset_path, coll_sprites, bullet_create):
         super().__init__(groups)
 
         self.import_assets(asset_path)
@@ -25,6 +25,9 @@ class Player(pg.sprite.Sprite):
 
         # Attack.
         self.isAttacking = False
+        self.fire_bullet = bullet_create
+        self.bullet_shot = False  # To avoid shooting bullets too fast (too close to one another).
+        self.bullet_dir = None
 
     def import_assets(self, asset_path):
         self.animations = {}  # (k, v): k --> animation 'state', v --> animation frames (list).
@@ -41,7 +44,7 @@ class Player(pg.sprite.Sprite):
                     surf = pg.image.load(img_path).convert_alpha()
                     self.animations[subfolder].append(surf)
         
-# For Animations (idle and attacking).
+    # For Animations (idle and attacking).
     def set_move_dir(self):
         # Idle player.
         if(self.direction.magnitude() == 0):    
@@ -75,8 +78,19 @@ class Player(pg.sprite.Sprite):
 
         if(keys[pg.K_SPACE]):
             self.isAttacking = True
+            self.bullet_shot = False
             self.direction = pg.math.Vector2()  # Stop motion of player.
             self.frame_index = 0
+            # Set bullet direction in accordance with the direction in which player is facing.
+            if(self.move_dir.split("_")[0] == "left"):
+                self.bullet_dir = pg.math.Vector2(-1, 0)
+            elif(self.move_dir.split("_")[0] == "right"):
+                self.bullet_dir = pg.math.Vector2(1, 0)
+            elif(self.move_dir.split("_")[0] == "up"):
+                self.bullet_dir = pg.math.Vector2(0, -1)
+            elif(self.move_dir.split("_")[0] == "down"):
+                self.bullet_dir = pg.math.Vector2(0, 1)
+            
 
 
     def move_player(self, deltaTime):
@@ -99,6 +113,17 @@ class Player(pg.sprite.Sprite):
     def animate(self, deltaTime):
         self.frame_index += 7*deltaTime
         
+        if(int(self.frame_index) == 2 and self.isAttacking and not self.bullet_shot):  # Check for shooting animation frame.
+            self.bullet_shot = True
+            self.bullet_pos = self.rect.center + self.bullet_dir*(50)  # Offset so that bullet does not start from center of the player.
+            
+            if(self.bullet_dir == pg.math.Vector2(0, -1)):  # Facing up.  (Adjusting bullet).
+                self.bullet_pos.x += self.rect.width*(0.2)
+            elif(self.bullet_dir == pg.math.Vector2(0, 1)):  # Facin down.  (Adjusting bullet).
+                self.bullet_pos.x -= self.rect.width*(0.2)
+
+            self.fire_bullet(self.bullet_pos, self.bullet_dir)
+
         if(self.frame_index >= len(self.animations[self.move_dir])):
             self.frame_index = 0
 
