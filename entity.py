@@ -103,3 +103,7 @@ class Entity(pg.sprite.Sprite):
                     self.rect.centery = self.hitbox.centery
                     self.pos.y = self.hitbox.centery
 
+    def check_alive(self):
+        if(self.health <= 0):
+            self.kill()
+

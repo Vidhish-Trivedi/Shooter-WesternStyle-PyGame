@@ -40,7 +40,7 @@ class Enemy:
             self.direction = pg.math.Vector2()  # Stop enemy motion.
 
 class Coffin(Entity, Enemy):
-    def __init__(self, position, groups, asset_path, coll_sprites, player_par):
+    def __init__(self, position, groups, asset_path, coll_sprites, player_par,):
         super().__init__(position, groups, asset_path, coll_sprites)
         
         # Overwrites.
@@ -61,13 +61,12 @@ class Coffin(Entity, Enemy):
         if(self.isAttacking):
             self.move_dir = self.move_dir.split("_")[0] + "_attack"
 
-
     def animate(self, deltaTime):
         self.frame_index += 7*deltaTime
 
         if(int(self.frame_index) == 4 and self.isAttacking):
             if(self.get_player_dist_dir()[0] < self.attack_radius):
-                self.player.damage()  # Is currently being called multiple times for a single attack!
+                self.player.damage()
 
         if(self.frame_index >= len(self.animations[self.move_dir])):
             self.frame_index = 0
@@ -82,9 +81,11 @@ class Coffin(Entity, Enemy):
         self.attack()
         self.move_entity(deltaTime)
         self.animate(deltaTime)
+        self.check_alive()
+        self.get_vulnerability()
 
 class Cactus(Entity, Enemy):
-    def __init__(self, position, groups, asset_path, coll_sprites, player_par):
+    def __init__(self, position, groups, asset_path, coll_sprites, player_par, bullet_create):
         super().__init__(position, groups, asset_path, coll_sprites)
 
         # Overwrites.
@@ -96,16 +97,53 @@ class Cactus(Entity, Enemy):
         self.move_to_player_radius = 500
         self.attack_radius = 350
 
+        # Bullets.
+        self.fire_bullet = bullet_create
+        self.bullet_shot = False
+        self.bullet_dir = None
+
+    def attack(self):
+        dist = self.get_player_dist_dir()[0]
+        if(dist < self.attack_radius and not self.isAttacking):
+            self.isAttacking = True
+            self.frame_index = 0
+            self.bullet_shot = False
+
+        if(self.isAttacking):
+            self.move_dir = self.move_dir.split("_")[0] + "_attack"
+
     def animate(self, deltaTime):
         self.frame_index += 7*deltaTime
 
+        if(int(self.frame_index) == 6 and self.isAttacking and not self.bullet_shot):
+            
+            self.bullet_dir = self.get_player_dist_dir()[1]
+            
+            self.bullet_pos = self.rect.center + self.bullet_dir*(150)  # Offset so that bullet does not start from center of the player.
+            
+            if(self.bullet_dir == pg.math.Vector2(0, -1)):  # Facing up.  (Adjusting bullet).
+                self.bullet_pos.x += self.rect.width*(0.2)
+            elif(self.bullet_dir == pg.math.Vector2(0, 1)):  # Facin down.  (Adjusting bullet).
+                self.bullet_pos.x -= self.rect.width*(0.2)
+
+            self.fire_bullet(self.bullet_pos, self.bullet_dir)
+            self.bullet_shot = True
+
+            if(self.get_player_dist_dir()[0] < self.attack_radius):
+                self.player.damage()
+
         if(self.frame_index >= len(self.animations[self.move_dir])):
             self.frame_index = 0
+            if(self.isAttacking):
+                self.isAttacking = False
 
         self.image = self.animations[self.move_dir][int(self.frame_index)]
 
     def update(self, deltaTime):
         self.face_player()
         self.walk_to_player()
+        self.attack()
         self.move_entity(deltaTime)
         self.animate(deltaTime)
+        self.check_alive()
+        self.get_vulnerability()

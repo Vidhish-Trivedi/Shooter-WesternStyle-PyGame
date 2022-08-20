@@ -42,11 +42,31 @@ class GameWindow:
         self.all_sprites = AllSprites()
         self.obstacles = pg.sprite.Group()
         self.bullets_grp = pg.sprite.Group()
+        self.enemy_grp = pg.sprite.Group()
 
         self.setup()
         
     def create_bullet(self, position, dir):
         my_bullet = Bullet(position, dir, self.bullet_surf, [self.all_sprites, self.bullets_grp])
+
+    def bullet_collisions(self):
+
+        # Collision of bullet with obstacles.
+        for obst in self.obstacles.sprites():
+            pg.sprite.spritecollide(obst, self.bullets_grp, True)
+
+        # Collision of bullet with monsters.
+        for blt in self.bullets_grp.sprites():
+            enemy_coll_list = pg.sprite.spritecollide(blt, self.enemy_grp, False)
+            if(len(enemy_coll_list) != 0):
+                blt.kill()
+                for enemy in enemy_coll_list:
+                    enemy.damage()
+
+        # Collision of bullet with player.
+        if(len(pg.sprite.spritecollide(self.my_player, self.bullets_grp, True)) != 0):
+            self.my_player.damage()
+
 
     def setup(self):
         # Importing Tiled data.
@@ -71,17 +91,18 @@ class GameWindow:
 
             elif(obj.name == "Coffin"):
                 coffin = Coffin(position=(obj.x, obj.y),
-                                groups=[self.all_sprites],
+                                groups=[self.all_sprites, self.enemy_grp],
                                 asset_path=st.PATHS['coffin'],
                                 coll_sprites=self.obstacles,
                                 player_par=self.my_player)
             
             elif(obj.name == "Cactus"):
                 cactus = Cactus(position=(obj.x, obj.y),
-                                groups=[self.all_sprites],
+                                groups=[self.all_sprites, self.enemy_grp],
                                 asset_path=st.PATHS['cactus'],
                                 coll_sprites=self.obstacles,
-                                player_par=self.my_player)
+                                player_par=self.my_player,
+                                bullet_create=self.create_bullet)
 
 
     def runGame(self):
@@ -100,6 +121,7 @@ class GameWindow:
 
             # Update.
             self.all_sprites.update(self.dt)
+            self.bullet_collisions()
 
             # Draw.
             self.all_sprites.custom_draw(self.my_player)

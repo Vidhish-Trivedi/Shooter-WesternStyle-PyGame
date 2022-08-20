@@ -1,3 +1,4 @@
+import sys
 import pygame as pg
 from entity import Entity
 
@@ -63,15 +64,15 @@ class Player(Entity):
         
         if(int(self.frame_index) == 2 and self.isAttacking and not self.bullet_shot):  # Check for shooting animation frame.
             self.bullet_shot = True
-            self.bullet_pos = self.rect.center + self.bullet_dir*(50)  # Offset so that bullet does not start from center of the player.
+            self.bullet_pos = self.rect.center + self.bullet_dir*(80)  # Offset so that bullet does not start from center of the player.
             
             if(self.bullet_dir == pg.math.Vector2(0, -1)):  # Facing up.  (Adjusting bullet).
                 self.bullet_pos.x += self.rect.width*(0.2)
             elif(self.bullet_dir == pg.math.Vector2(0, 1)):  # Facin down.  (Adjusting bullet).
                 self.bullet_pos.x -= self.rect.width*(0.2)
-
+            
             self.fire_bullet(self.bullet_pos, self.bullet_dir)
-
+            
         if(self.frame_index >= len(self.animations[self.move_dir])):
             self.frame_index = 0
 
@@ -80,10 +81,18 @@ class Player(Entity):
 
         self.image = self.animations[self.move_dir][int(self.frame_index)]
 
+    # OverWrite.
+    def check_alive(self):
+        if(self.health <= 0):
+            pg.quit()
+            print("Game Over!")
+            sys.exit()
+
     def update(self, deltaTime):
         self.input()
         self.set_move_dir()
         self.move_entity(deltaTime)
         self.animate(deltaTime)
+        self.check_alive()
         self.get_vulnerability()
         
