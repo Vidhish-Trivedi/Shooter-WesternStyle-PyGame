@@ -16,19 +16,16 @@ class AllSprites(pg.sprite.Group):
     
     # Set up camera view.
     def custom_draw(self, player):
-        # Change offset vector.
+        
         self.offset.x = player.rect.centerx - st.WINDOW_WIDTH/2
         self.offset.y = player.rect.centery - st.WINDOW_HEIGHT/2
 
-        # blit. (For background offset)
         self.display_surface.blit(self.background, -self.offset)
         
-        # Offset all sprites (objects).  Sorted() to get overlapping effect.
         for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
             offset_rect = sprite.image.get_rect(center=sprite.rect.center)
             offset_rect.center -= self.offset
             self.display_surface.blit(sprite.image, offset_rect)
-
 
 # Create Window class.
 class GameWindow:
@@ -37,7 +34,7 @@ class GameWindow:
         
         self.display_surface = pg.display.set_mode((st.WINDOW_WIDTH, st.WINDOW_HEIGHT))
         pg.display.set_caption("Western Shooter")
-        # Import bullet image once only, store it and pass as a parameter later.  (For better performance).
+
         self.bullet_surf = pg.image.load('./graphics/other/particle.png').convert_alpha()
         self.clk = pg.time.Clock()
 
@@ -48,10 +45,8 @@ class GameWindow:
 
         self.setup()
         
-        
     def create_bullet(self, position, dir):
         my_bullet = Bullet(position, dir, self.bullet_surf, [self.all_sprites, self.bullets_grp])
-
 
     def setup(self):
         # Importing Tiled data.
@@ -78,13 +73,15 @@ class GameWindow:
                 coffin = Coffin(position=(obj.x, obj.y),
                                 groups=[self.all_sprites],
                                 asset_path=st.PATHS['coffin'],
-                                coll_sprites=self.obstacles)
+                                coll_sprites=self.obstacles,
+                                player_par=self.my_player)
             
             elif(obj.name == "Cactus"):
                 cactus = Cactus(position=(obj.x, obj.y),
                                 groups=[self.all_sprites],
                                 asset_path=st.PATHS['cactus'],
-                                coll_sprites=self.obstacles)
+                                coll_sprites=self.obstacles,
+                                player_par=self.my_player)
 
 
     def runGame(self):

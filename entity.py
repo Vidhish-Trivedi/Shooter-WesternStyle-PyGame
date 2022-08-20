@@ -44,7 +44,7 @@ class Entity(pg.sprite.Sprite):
                     self.animations[subfolder].append(surf)
 
 
-    def move_player(self, deltaTime):
+    def move_entity(self, deltaTime):
         if(self.direction.magnitude() != 0):
             self.direction = self.direction.normalize()
 

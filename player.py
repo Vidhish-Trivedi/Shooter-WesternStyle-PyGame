@@ -80,5 +80,5 @@ class Player(Entity):
     def update(self, deltaTime):
         self.input()
         self.set_move_dir()
-        self.move_player(deltaTime)
+        self.move_entity(deltaTime)
         self.animate(deltaTime)
