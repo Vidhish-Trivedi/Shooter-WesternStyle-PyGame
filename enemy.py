@@ -39,7 +39,6 @@ class Enemy:
         else:
             self.direction = pg.math.Vector2()  # Stop enemy motion.
 
-
 class Coffin(Entity, Enemy):
     def __init__(self, position, groups, asset_path, coll_sprites, player_par):
         super().__init__(position, groups, asset_path, coll_sprites)
@@ -53,17 +52,34 @@ class Coffin(Entity, Enemy):
         self.move_to_player_radius = 400
         self.attack_radius = 50
 
+    def attack(self):
+        dist = self.get_player_dist_dir()[0]
+        if(dist < self.attack_radius and not self.isAttacking):
+            self.isAttacking = True
+            self.frame_index = 0
+
+        if(self.isAttacking):
+            self.move_dir = self.move_dir.split("_")[0] + "_attack"
+
+
     def animate(self, deltaTime):
         self.frame_index += 7*deltaTime
 
+        if(int(self.frame_index) == 4 and self.isAttacking):
+            if(self.get_player_dist_dir()[0] < self.attack_radius):
+                self.player.damage()  # Is currently being called multiple times for a single attack!
+
         if(self.frame_index >= len(self.animations[self.move_dir])):
             self.frame_index = 0
+            if(self.isAttacking):
+                self.isAttacking = False
 
         self.image = self.animations[self.move_dir][int(self.frame_index)]
 
     def update(self, deltaTime):
         self.face_player()
         self.walk_to_player()
+        self.attack()
         self.move_entity(deltaTime)
         self.animate(deltaTime)
 

@@ -5,6 +5,9 @@ class Player(Entity):
     def __init__(self, position, groups, asset_path, coll_sprites, bullet_create):
         super().__init__(position, groups, asset_path, coll_sprites)
 
+        # Overwrites.
+        self.health = 5
+
         self.fire_bullet = bullet_create
         self.bullet_shot = False  # To avoid shooting bullets too fast (too close to one another).
         self.bullet_dir = None
@@ -82,3 +85,5 @@ class Player(Entity):
         self.set_move_dir()
         self.move_entity(deltaTime)
         self.animate(deltaTime)
+        self.get_vulnerability()
+        

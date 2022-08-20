@@ -17,8 +17,7 @@ class Entity(pg.sprite.Sprite):
         # Float based movement.
         self.pos = pg.math.Vector2(self.rect.center)
         self.direction = pg.math.Vector2()   # (0, 0) by default.
-        self.speed = 200
-        
+        self.speed = 200        
 
         # Collisions.
         self.hitbox = self.rect.inflate(-self.rect.width/2, -self.rect.height/2)
@@ -26,6 +25,24 @@ class Entity(pg.sprite.Sprite):
 
         # Attack.
         self.isAttacking = False
+
+        # Health/Damage.
+        self.health = 3
+        # To avoid multiple calls to damage() in a single attack.
+        self.vulnerable = True
+        self.hit_time = None
+
+    def damage(self):
+        if(self.vulnerable):
+            self.health -= 1
+            self.vulnerable = False
+            self.hit_time = pg.time.get_ticks()
+
+    # Entity would be in-vulnerable for 0.5 seconds after being hit.
+    def get_vulnerability(self):
+        if(not self.vulnerable):
+            if(pg.time.get_ticks() - self.hit_time > 500):
+                self.vulnerable = True
 
     # Methods copied from previously made Player() class.
     def import_assets(self, asset_path):
