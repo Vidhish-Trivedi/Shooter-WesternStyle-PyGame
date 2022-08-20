@@ -20,7 +20,7 @@ class Player(pg.sprite.Sprite):
         
 
         # Collisions.
-        self.hitbox = self.rect.inflate(0, -self.rect.height/2)
+        self.hitbox = self.rect.inflate(-self.rect.width/2, -self.rect.height/2)
         self.collision_sprites = coll_sprites
 
         # Attack.
@@ -83,15 +83,17 @@ class Player(pg.sprite.Sprite):
         if(self.direction.magnitude() != 0):
             self.direction = self.direction.normalize()
 
-            # Horizontal movement.
-            self.pos.x += self.direction.x*self.speed*deltaTime
-            self.hitbox.centerx = round(self.pos.x)
-            self.rect.centerx = self.hitbox.centerx
+        # Horizontal movement.
+        self.pos.x += self.direction.x*self.speed*deltaTime
+        self.hitbox.centerx = round(self.pos.x)
+        self.rect.centerx = self.hitbox.centerx
+        self.collision("horizontal")
 
-            # Vertical movement.
-            self.pos.y += self.direction.y*self.speed*deltaTime
-            self.hitbox.centery = round(self.pos.y)
-            self.rect.centery = self.hitbox.centery
+        # Vertical movement.
+        self.pos.y += self.direction.y*self.speed*deltaTime
+        self.hitbox.centery = round(self.pos.y)
+        self.rect.centery = self.hitbox.centery
+        self.collision("vertical")
 
 
     def animate(self, deltaTime):
@@ -104,6 +106,32 @@ class Player(pg.sprite.Sprite):
                 self.isAttacking = False  # Stop attacking once all animations for attack are done.
 
         self.image = self.animations[self.move_dir][int(self.frame_index)]
+
+    # Collisions.
+    def collision(self, direction):
+        for sprite in self.collision_sprites.sprites():
+            if(direction == "horizontal"):
+                if(sprite.hitbox.colliderect(self.hitbox)):
+                    if(self.direction.x > 0):  # Collision on left side.
+                        self.hitbox.right = sprite.hitbox.left
+
+                    if(self.direction.x < 0):  # Collision on right side.
+                        self.hitbox.left = sprite.hitbox.right
+                    
+                    self.rect.centerx = self.hitbox.centerx
+                    self.pos.x = self.hitbox.centerx
+        
+            else:  # Direction is vertical.
+                if(sprite.hitbox.colliderect(self.hitbox)):
+                    if(self.direction.y > 0):  # Collision on top side.
+                        self.hitbox.bottom = sprite.hitbox.top
+
+                    if(self.direction.y < 0):  # Collision on bottom side.
+                        self.hitbox.top = sprite.hitbox.bottom
+                    
+                    self.rect.centery = self.hitbox.centery
+                    self.pos.y = self.hitbox.centery
+
 
     def update(self, deltaTime):
         self.input()

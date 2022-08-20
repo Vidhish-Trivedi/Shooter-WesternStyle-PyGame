@@ -41,6 +41,7 @@ class GameWindow:
 
         # Groups.
         self.all_sprites = AllSprites()
+        self.obstacles = pg.sprite.Group()
 
         self.setup()
         
@@ -51,17 +52,17 @@ class GameWindow:
         
         # Fence.
         for (x, y, surf) in tmx_map.get_layer_by_name('Fence').tiles():
-            new_sprite = MySprite((x*64, y*64), surf, self.all_sprites)  # (x, y) --> grid cell in Tiled.
+            new_sprite = MySprite((x*64, y*64), surf, [self.all_sprites, self.obstacles])  # (x, y) --> grid cell in Tiled.
 
         # Objects.
         for obj in tmx_map.get_layer_by_name('Object'):
             # obj.x    obj.y    obj.image (surface)    obj.name   obj.type (class)
-            new_sprite = MySprite((obj.x, obj.y), obj.image, self.all_sprites)
+            new_sprite = MySprite((obj.x, obj.y), obj.image, [self.all_sprites, self.obstacles])
         
         # Entities.
         for obj in tmx_map.get_layer_by_name('Entities'):
             if(obj.name == "Player"):
-                self.my_player = Player((obj.x, obj.y), self.all_sprites, st.PATHS['player'], None)  # None for now... 
+                self.my_player = Player((obj.x, obj.y), self.all_sprites, st.PATHS['player'], self.obstacles)  # None for now... 
 
 
     def runGame(self):
