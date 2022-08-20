@@ -3,6 +3,7 @@ import settings as st
 import sys
 from player import Player
 from sprite import MySprite, Bullet
+from enemy import Cactus, Coffin
 from pytmx.util_pygame import load_pygame
 
 class AllSprites(pg.sprite.Group):
@@ -73,6 +74,19 @@ class GameWindow:
                                         coll_sprites=self.obstacles,
                                         bullet_create=self.create_bullet)
 
+            elif(obj.name == "Coffin"):
+                coffin = Coffin(position=(obj.x, obj.y),
+                                groups=[self.all_sprites],
+                                asset_path=st.PATHS['coffin'],
+                                coll_sprites=self.obstacles)
+            
+            elif(obj.name == "Cactus"):
+                cactus = Cactus(position=(obj.x, obj.y),
+                                groups=[self.all_sprites],
+                                asset_path=st.PATHS['cactus'],
+                                coll_sprites=self.obstacles)
+
+
     def runGame(self):
         while(True):
             for event in pg.event.get():
@@ -87,14 +101,11 @@ class GameWindow:
             # BG.
             self.display_surface.fill("black")
 
-
             # Update.
             self.all_sprites.update(self.dt)
 
-
             # Draw.
             self.all_sprites.custom_draw(self.my_player)
-
 
             pg.display.update()
 
