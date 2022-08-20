@@ -20,7 +20,7 @@ class GameWindow:
 
     def setup(self):
         # Instances.
-        my_player = Player((200, 200), self.all_sprites, None, None)  # None for now... 
+        my_player = Player((200, 200), self.all_sprites, st.PATHS['player'], None)  # None for now... 
 
     def runGame(self):
         while(True):
