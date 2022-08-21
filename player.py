@@ -7,7 +7,7 @@ class Player(Entity):
         super().__init__(position, groups, asset_path, coll_sprites)
 
         # Overwrites.
-        self.health = 5
+        self.health = 10  # TODO: Set to 5 later.
 
         self.fire_bullet = bullet_create
         self.bullet_shot = False  # To avoid shooting bullets too fast (too close to one another).

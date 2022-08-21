@@ -82,7 +82,10 @@ class GameWindow:
             MySprite((x*64, y*64), surf, [self.all_sprites, self.obstacles])  # (x, y) --> grid cell in Tiled.
 
         # Objects.
+        # i = 0
         for obj in tmx_map.get_layer_by_name('Object'):
+            # print(i, type(obj.image), obj)
+            # i+=1
             MySprite((obj.x, obj.y), obj.image, [self.all_sprites, self.obstacles])
         
         # Entities.
