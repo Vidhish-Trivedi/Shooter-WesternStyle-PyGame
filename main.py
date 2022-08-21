@@ -57,14 +57,14 @@ class GameWindow:
 
         # Collision of bullet with monsters.
         for blt in self.bullets_grp.sprites():
-            enemy_coll_list = pg.sprite.spritecollide(blt, self.enemy_grp, False)
+            enemy_coll_list = pg.sprite.spritecollide(blt, self.enemy_grp, False, pg.sprite.collide_mask)
             if(len(enemy_coll_list) != 0):
                 blt.kill()
                 for enemy in enemy_coll_list:
                     enemy.damage()
 
         # Collision of bullet with player.
-        if(len(pg.sprite.spritecollide(self.my_player, self.bullets_grp, True)) != 0):
+        if(len(pg.sprite.spritecollide(self.my_player, self.bullets_grp, True, pg.sprite.collide_mask)) != 0):
             self.my_player.damage()
 
 

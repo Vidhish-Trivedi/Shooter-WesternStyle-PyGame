@@ -1,5 +1,6 @@
 import pygame as pg
 from os import walk
+from math import sin
 
 # Common parent class for player and monsters.
 class Entity(pg.sprite.Sprite):
@@ -22,6 +23,7 @@ class Entity(pg.sprite.Sprite):
         # Collisions.
         self.hitbox = self.rect.inflate(-self.rect.width/2, -self.rect.height/2)
         self.collision_sprites = coll_sprites
+        self.mask = pg.mask.from_surface(self.image)
 
         # Attack.
         self.isAttacking = False
@@ -37,6 +39,22 @@ class Entity(pg.sprite.Sprite):
             self.health -= 1
             self.vulnerable = False
             self.hit_time = pg.time.get_ticks()
+
+    # Change player to white surface when in-vulnerable.
+    def blink(self):
+        if(not self.vulnerable and self.wave()):  
+            mask = pg.mask.from_surface(self.image)
+            white_surf = mask.to_surface()
+            white_surf.set_colorkey((0, 0, 0))  # Remove a color from surface.
+            self.image = white_surf
+
+    # Use sin function to get 'blinking' effect.
+    def wave(self):
+        val = sin(pg.time.get_ticks())
+        if(val >= 0):
+            return(True)
+        else:
+            return(False)
 
     # Entity would be in-vulnerable for 0.5 seconds after being hit.
     def get_vulnerability(self):
@@ -60,7 +78,6 @@ class Entity(pg.sprite.Sprite):
                     surf = pg.image.load(img_path).convert_alpha()
                     self.animations[subfolder].append(surf)
 
-
     def move_entity(self, deltaTime):
         if(self.direction.magnitude() != 0):
             self.direction = self.direction.normalize()
@@ -77,7 +94,6 @@ class Entity(pg.sprite.Sprite):
         self.rect.centery = self.hitbox.centery
         self.collision("vertical")
 
-    
     # Collisions.
     def collision(self, direction):
         for sprite in self.collision_sprites.sprites():

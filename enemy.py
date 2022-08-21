@@ -74,6 +74,7 @@ class Coffin(Entity, Enemy):
                 self.isAttacking = False
 
         self.image = self.animations[self.move_dir][int(self.frame_index)]
+        self.mask = pg.mask.from_surface(self.image)
 
     def update(self, deltaTime):
         self.face_player()
@@ -81,6 +82,7 @@ class Coffin(Entity, Enemy):
         self.attack()
         self.move_entity(deltaTime)
         self.animate(deltaTime)
+        self.blink()
         self.check_alive()
         self.get_vulnerability()
 
@@ -129,15 +131,13 @@ class Cactus(Entity, Enemy):
             self.fire_bullet(self.bullet_pos, self.bullet_dir)
             self.bullet_shot = True
 
-            if(self.get_player_dist_dir()[0] < self.attack_radius):
-                self.player.damage()
-
         if(self.frame_index >= len(self.animations[self.move_dir])):
             self.frame_index = 0
             if(self.isAttacking):
                 self.isAttacking = False
 
         self.image = self.animations[self.move_dir][int(self.frame_index)]
+        self.mask = pg.mask.from_surface(self.image)
 
     def update(self, deltaTime):
         self.face_player()
@@ -145,5 +145,6 @@ class Cactus(Entity, Enemy):
         self.attack()
         self.move_entity(deltaTime)
         self.animate(deltaTime)
+        self.blink()
         self.check_alive()
         self.get_vulnerability()

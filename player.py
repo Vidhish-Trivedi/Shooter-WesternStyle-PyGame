@@ -80,6 +80,7 @@ class Player(Entity):
                 self.isAttacking = False  # Stop attacking once all animations for attack are done.
 
         self.image = self.animations[self.move_dir][int(self.frame_index)]
+        self.mask = pg.mask.from_surface(self.image)
 
     # OverWrite.
     def check_alive(self):
@@ -93,6 +94,7 @@ class Player(Entity):
         self.set_move_dir()
         self.move_entity(deltaTime)
         self.animate(deltaTime)
+        self.blink()
         self.check_alive()
         self.get_vulnerability()
         

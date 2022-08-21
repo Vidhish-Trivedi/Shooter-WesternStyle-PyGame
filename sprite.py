@@ -11,6 +11,7 @@ class Bullet(pg.sprite.Sprite):
     def __init__(self, position, dir, surface, groups):
         super().__init__(groups)
         self.image = surface
+        self.mask = pg.mask.from_surface(self.image)
         self.rect = self.image.get_rect(center=position)
 
         # Float based movement.
