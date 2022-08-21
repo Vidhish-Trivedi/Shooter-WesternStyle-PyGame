@@ -30,15 +30,21 @@ class Entity(pg.sprite.Sprite):
 
         # Health/Damage.
         self.health = 3
-        # To avoid multiple calls to damage() in a single attack.
         self.vulnerable = True
         self.hit_time = None
+
+        # Music.
+        self.hit_sound = pg.mixer.Sound('./sound/hit.mp3')
+        self.hit_sound.set_volume(0.5)  # Value between 0 and 1.
+        self.blt_fire_sound = pg.mixer.Sound('./sound/bullet.wav')
+        self.blt_fire_sound.set_volume(0.3)
 
     def damage(self):
         if(self.vulnerable):
             self.health -= 1
             self.vulnerable = False
             self.hit_time = pg.time.get_ticks()
+            self.hit_sound.play()
 
     # Change player to white surface when in-vulnerable.
     def blink(self):
@@ -122,4 +128,3 @@ class Entity(pg.sprite.Sprite):
     def check_alive(self):
         if(self.health <= 0):
             self.kill()
-

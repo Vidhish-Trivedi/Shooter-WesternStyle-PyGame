@@ -45,9 +45,14 @@ class GameWindow:
         self.enemy_grp = pg.sprite.Group()
 
         self.setup()
-        
+
+        # Music.
+        self.bg_music = pg.mixer.Sound('./sound/music.mp3')
+        self.bg_music.play(loops=-1)
+
+
     def create_bullet(self, position, dir):
-        my_bullet = Bullet(position, dir, self.bullet_surf, [self.all_sprites, self.bullets_grp])
+        Bullet(position, dir, self.bullet_surf, [self.all_sprites, self.bullets_grp])
 
     def bullet_collisions(self):
 
@@ -74,11 +79,11 @@ class GameWindow:
         
         # Fence.
         for (x, y, surf) in tmx_map.get_layer_by_name('Fence').tiles():
-            new_sprite = MySprite((x*64, y*64), surf, [self.all_sprites, self.obstacles])  # (x, y) --> grid cell in Tiled.
+            MySprite((x*64, y*64), surf, [self.all_sprites, self.obstacles])  # (x, y) --> grid cell in Tiled.
 
         # Objects.
         for obj in tmx_map.get_layer_by_name('Object'):
-            new_sprite = MySprite((obj.x, obj.y), obj.image, [self.all_sprites, self.obstacles])
+            MySprite((obj.x, obj.y), obj.image, [self.all_sprites, self.obstacles])
         
         # Entities.
         for obj in tmx_map.get_layer_by_name('Entities'):
@@ -90,14 +95,14 @@ class GameWindow:
                                         bullet_create=self.create_bullet)
 
             elif(obj.name == "Coffin"):
-                coffin = Coffin(position=(obj.x, obj.y),
+                Coffin(position=(obj.x, obj.y),
                                 groups=[self.all_sprites, self.enemy_grp],
                                 asset_path=st.PATHS['coffin'],
                                 coll_sprites=self.obstacles,
                                 player_par=self.my_player)
             
             elif(obj.name == "Cactus"):
-                cactus = Cactus(position=(obj.x, obj.y),
+                Cactus(position=(obj.x, obj.y),
                                 groups=[self.all_sprites, self.enemy_grp],
                                 asset_path=st.PATHS['cactus'],
                                 coll_sprites=self.obstacles,
@@ -127,7 +132,6 @@ class GameWindow:
             self.all_sprites.custom_draw(self.my_player)
 
             pg.display.update()
-
 
 if(__name__ == "__main__"):
     my_window = GameWindow()

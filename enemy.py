@@ -118,7 +118,7 @@ class Cactus(Entity, Enemy):
         self.frame_index += 7*deltaTime
 
         if(int(self.frame_index) == 6 and self.isAttacking and not self.bullet_shot):
-            
+            self.bullet_shot = True
             self.bullet_dir = self.get_player_dist_dir()[1]
             
             self.bullet_pos = self.rect.center + self.bullet_dir*(150)  # Offset so that bullet does not start from center of the player.
@@ -129,7 +129,7 @@ class Cactus(Entity, Enemy):
                 self.bullet_pos.x -= self.rect.width*(0.2)
 
             self.fire_bullet(self.bullet_pos, self.bullet_dir)
-            self.bullet_shot = True
+            self.blt_fire_sound.play()
 
         if(self.frame_index >= len(self.animations[self.move_dir])):
             self.frame_index = 0

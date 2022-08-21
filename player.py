@@ -72,6 +72,7 @@ class Player(Entity):
                 self.bullet_pos.x -= self.rect.width*(0.2)
             
             self.fire_bullet(self.bullet_pos, self.bullet_dir)
+            self.blt_fire_sound.play()
             
         if(self.frame_index >= len(self.animations[self.move_dir])):
             self.frame_index = 0
@@ -97,4 +98,3 @@ class Player(Entity):
         self.blink()
         self.check_alive()
         self.get_vulnerability()
-        
