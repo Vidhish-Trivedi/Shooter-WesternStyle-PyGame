@@ -6,12 +6,7 @@ from sprite import MySprite, Bullet
 from enemy import Cactus, Coffin
 from pytmx.util_pygame import load_pygame
 
-#############################  SCORE CLASS  ##################################
-# class Score:
-    
-######################################################################################################
-
-
+############  Global Variables  ############
 
 class AllSprites(pg.sprite.Group):
     def __init__(self):
@@ -38,6 +33,8 @@ class AllSprites(pg.sprite.Group):
 class GameWindow:
     def __init__(self):
         pg.init()
+
+        self.count_of_enemies = -1
         
         self.display_surface = pg.display.set_mode((st.WINDOW_WIDTH, st.WINDOW_HEIGHT))
         pg.display.set_caption("Western Shooter")
@@ -57,15 +54,30 @@ class GameWindow:
         # Music.
         self.bg_music = pg.mixer.Sound('./sound/music.mp3')
         self.bg_music.play(loops=-1)
-###########################
+
     def display_health(self, player):
         score_txt = f"Health: {player.health}"
         txt_surf = self.font1.render(score_txt, True, "black")
         txt_rect = txt_surf.get_rect(midbottom=(st.WINDOW_WIDTH/2, st.WINDOW_HEIGHT - 25))
         self.display_surface.blit(txt_surf, txt_rect)
         pg.draw.rect(self.display_surface, "black", txt_rect.inflate(30, 30), width=8, border_radius=5)
- 
-
+#############################
+    def game_over(self):
+        global count_of_enemies
+        if(self.my_player.health == 0):
+            self.display_surface.fill("teal")
+            GO_txt = "Game Over!"
+            txt_surf = self.font1.render(GO_txt, True, "black")
+            txt_rect = txt_surf.get_rect(midbottom=(st.WINDOW_WIDTH/2, st.WINDOW_HEIGHT/2))
+            self.display_surface.blit(txt_surf, txt_rect)
+            pg.draw.rect(self.display_surface, "black", txt_rect.inflate(30, 30), width=8, border_radius=5)
+        if(self.count_of_enemies == 0):
+            self.display_surface.fill("green")
+            GO_txt = "Congratulations, You Win!"
+            txt_surf = self.font1.render(GO_txt, True, "black")
+            txt_rect = txt_surf.get_rect(midbottom=(st.WINDOW_WIDTH/2, st.WINDOW_HEIGHT/2))
+            self.display_surface.blit(txt_surf, txt_rect)
+            pg.draw.rect(self.display_surface, "black", txt_rect.inflate(30, 30), width=8, border_radius=5)
 ###############################
     def create_bullet(self, position, dir):
         Bullet(position, dir, self.bullet_surf, [self.all_sprites, self.bullets_grp])
@@ -83,21 +95,23 @@ class GameWindow:
                 blt.kill()
                 for enemy in enemy_coll_list:
                     enemy.damage()
+                    self.count_of_enemies -= 1  # We will keep track of number of shots the enemies can survive.
 
         # Collision of bullet with player.
         if(len(pg.sprite.spritecollide(self.my_player, self.bullets_grp, True, pg.sprite.collide_mask)) != 0):
             self.my_player.damage()
 
     def setup(self):
+        global count_of_enemies
         # Importing Tiled data.
         tmx_map = load_pygame('./data/map.tmx')
         
         # Fence.
         for (x, y, surf) in tmx_map.get_layer_by_name('Fence1').tiles():
-            MySprite((x*64, y*64), surf, [self.all_sprites, self.obstacles])  # (x, y) --> grid cell in Tiled.
+            MySprite((x*64, y*64), surf, [self.all_sprites, self.obstacles])
 
         for (x, y, surf) in tmx_map.get_layer_by_name('Fence2').tiles():
-            MySprite((x*64, y*64), surf, [self.all_sprites])  # (x, y) --> grid cell in Tiled.
+            MySprite((x*64, y*64), surf, [self.all_sprites])
 
         # Objects.
         for obj in tmx_map.get_layer_by_name('Object'):
@@ -105,6 +119,7 @@ class GameWindow:
         
         # Entities.
         for obj in tmx_map.get_layer_by_name('Entities'):
+            self.count_of_enemies += 1
             if(obj.name == "Player"):
                 self.my_player = Player(position=(obj.x, obj.y),
                                         groups=self.all_sprites,
@@ -127,8 +142,12 @@ class GameWindow:
                                 player_par=self.my_player,
                                 bullet_create=self.create_bullet)
 
+        # We will keep track of number of shots the enemies can survive.
+        self.count_of_enemies = (self.count_of_enemies)*3  # 3 is the health of each enemy.
+
 
     def runGame(self):
+        global count_of_enemies
         while(True):
             for event in pg.event.get():
                 if(event.type == pg.QUIT):
@@ -139,17 +158,20 @@ class GameWindow:
             # Delta time.
             self.dt = self.clk.tick(120)/1000
 
-            # BG.
-            self.display_surface.fill("black")
-
-            # Update.
-            self.all_sprites.update(self.dt)
-            self.bullet_collisions()
-
             # Draw.
-            self.all_sprites.custom_draw(self.my_player)
-            self.display_health(self.my_player)
+            if(self.my_player.health != 0):
+                # BG.
+                self.display_surface.fill("black")
 
+                # Update.
+                self.all_sprites.update(self.dt)
+                self.bullet_collisions()
+
+                self.all_sprites.custom_draw(self.my_player)
+                self.display_health(self.my_player)
+            
+            self.game_over()
+            
             pg.display.update()
 
 if(__name__ == "__main__"):

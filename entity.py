@@ -126,5 +126,6 @@ class Entity(pg.sprite.Sprite):
                     self.pos.y = self.hitbox.centery
 
     def check_alive(self):
+        global count_of_enemies
         if(self.health <= 0):
             self.kill()
