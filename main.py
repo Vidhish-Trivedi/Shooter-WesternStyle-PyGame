@@ -6,6 +6,13 @@ from sprite import MySprite, Bullet
 from enemy import Cactus, Coffin
 from pytmx.util_pygame import load_pygame
 
+#############################  SCORE CLASS  ##################################
+# class Score:
+    
+######################################################################################################
+
+
+
 class AllSprites(pg.sprite.Group):
     def __init__(self):
         super().__init__()
@@ -37,6 +44,7 @@ class GameWindow:
 
         self.bullet_surf = pg.image.load('./graphics/other/particle.png').convert_alpha()
         self.clk = pg.time.Clock()
+        self.font1 = pg.font.Font('./graphics/CM_Old_Western.ttf', 40)
 
         # Groups.
         self.all_sprites = AllSprites()
@@ -49,8 +57,16 @@ class GameWindow:
         # Music.
         self.bg_music = pg.mixer.Sound('./sound/music.mp3')
         self.bg_music.play(loops=-1)
+###########################
+    def display_health(self, player):
+        score_txt = f"Health: {player.health}"
+        txt_surf = self.font1.render(score_txt, True, "black")
+        txt_rect = txt_surf.get_rect(midbottom=(st.WINDOW_WIDTH/2, st.WINDOW_HEIGHT - 25))
+        self.display_surface.blit(txt_surf, txt_rect)
+        pg.draw.rect(self.display_surface, "black", txt_rect.inflate(30, 30), width=8, border_radius=5)
+ 
 
-
+###############################
     def create_bullet(self, position, dir):
         Bullet(position, dir, self.bullet_surf, [self.all_sprites, self.bullets_grp])
 
@@ -72,20 +88,19 @@ class GameWindow:
         if(len(pg.sprite.spritecollide(self.my_player, self.bullets_grp, True, pg.sprite.collide_mask)) != 0):
             self.my_player.damage()
 
-
     def setup(self):
         # Importing Tiled data.
         tmx_map = load_pygame('./data/map.tmx')
         
         # Fence.
-        for (x, y, surf) in tmx_map.get_layer_by_name('Fence').tiles():
+        for (x, y, surf) in tmx_map.get_layer_by_name('Fence1').tiles():
             MySprite((x*64, y*64), surf, [self.all_sprites, self.obstacles])  # (x, y) --> grid cell in Tiled.
 
+        for (x, y, surf) in tmx_map.get_layer_by_name('Fence2').tiles():
+            MySprite((x*64, y*64), surf, [self.all_sprites])  # (x, y) --> grid cell in Tiled.
+
         # Objects.
-        # i = 0
         for obj in tmx_map.get_layer_by_name('Object'):
-            # print(i, type(obj.image), obj)
-            # i+=1
             MySprite((obj.x, obj.y), obj.image, [self.all_sprites, self.obstacles])
         
         # Entities.
@@ -133,6 +148,7 @@ class GameWindow:
 
             # Draw.
             self.all_sprites.custom_draw(self.my_player)
+            self.display_health(self.my_player)
 
             pg.display.update()
 

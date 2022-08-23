@@ -1,6 +1,7 @@
 import sys
 import pygame as pg
 from entity import Entity
+import settings as st
 
 class Player(Entity):
     def __init__(self, position, groups, asset_path, coll_sprites, bullet_create):
